@@ -8,6 +8,7 @@ mod control;
 mod core_bin;
 mod files;
 mod hc;
+mod i18n;
 mod keys;
 mod layout;
 mod layout_sync;
@@ -92,6 +93,7 @@ fn link_check_path(args: &[String]) -> Option<&std::path::Path> {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    i18n::install();
     #[cfg(target_os = "macos")]
     macos_check::startup(&args);
     #[cfg(windows)]
