@@ -820,7 +820,7 @@ fn materialize_node(
     // flattening them here would throw away the very thing it needs. See
     // [`ChildSpecs`].
     let children: Children = if let Some((current, list)) = frame_text {
-        smallvec::smallvec![SharedString::from(list[current].clone()).into_any_element()]
+        smallvec::smallvec![SharedString::from(crate::translate_text(&list[current])).into_any_element()]
     } else if takes_typed_children(&component)
         || matches!(component, Component::Registered(_))
     {
