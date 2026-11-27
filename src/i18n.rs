@@ -12,9 +12,10 @@ use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, OnceLock, RwLock};
 
 /// The languages the settings offer: (code in settings.json, name in its own language).
-pub const LANGUAGES: &[(&str, &str)] = &[("en", "English"), ("zh-CN", "简体中文")];
+pub const LANGUAGES: &[(&str, &str)] = &[("en", "English"), ("zh-CN", "简体中文"), ("ko", "한국어")];
 
 const ZH_CN: &str = include_str!("../defaults/i18n/zh-CN.json");
+const KO: &str = include_str!("../defaults/i18n/ko.json");
 
 static CURRENT: RwLock<String> = RwLock::new(String::new());
 
@@ -55,8 +56,10 @@ fn load(json: &str) -> Table {
 
 fn table_for(code: &str) -> Option<&'static Table> {
     static ZH: OnceLock<Table> = OnceLock::new();
+    static KO_TABLE: OnceLock<Table> = OnceLock::new();
     match code {
         "zh-CN" => Some(ZH.get_or_init(|| load(ZH_CN))),
+        "ko" => Some(KO_TABLE.get_or_init(|| load(KO))),
         _ => None,
     }
 }
@@ -201,5 +204,27 @@ mod tests {
     fn the_shipped_table_loads() {
         let t = table_for("zh-CN").unwrap();
         assert!(!t.exact.is_empty());
+    }
+
+    #[test]
+    fn korean_table_loads_and_translates() {
+        let t = table_for("ko").unwrap();
+        assert!(!t.exact.is_empty());
+        assert_eq!(normalize("KO"), "ko");
+        assert_eq!(lookup(t, "Try again").as_deref(), Some("다시 시도"));
+        assert_eq!(lookup(t, "3 agents").as_deref(), Some("에이전트 3개"));
+    }
+
+    #[test]
+    fn korean_keeps_spacing_and_reads_naturally() {
+        let t = table_for("ko").unwrap();
+        // A captured piece keeps its leading space, so the sentences stay apart.
+        assert_eq!(lookup(t, "Up to date. Checked at 03:00.").as_deref(), Some("최신 버전입니다. 03:00에 확인됨."));
+        // The `{}` in the status bar is a key, not a count.
+        assert_eq!(lookup(t, "Ctrl+Shift+P  commands").as_deref(), Some("Ctrl+Shift+P  명령"));
+        // The plural `s` piece disappears in Korean.
+        assert_eq!(lookup(t, "earlier: 3 quiet spaces ▾").as_deref(), Some("이전: 조용한 스페이스 3개 ▾"));
+        assert_eq!(lookup(t, "Idle").as_deref(), Some("대기 중"));
+        assert_eq!(lookup(t, "pane go left").as_deref(), Some("왼쪽 패널(pane)로 이동"));
     }
 }

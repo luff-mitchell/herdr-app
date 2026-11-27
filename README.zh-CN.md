@@ -1,6 +1,6 @@
 # Herdr
 
-[English](README.md) · 简体中文
+[English](README.md) · 简体中文 · [한국어](README.ko.md)
 
 Herdr 是一款面向终端与编程 Agent 的桌面应用。把工作按空间（Space）归类管理，一眼看清哪些 Agent 需要你处理，关闭窗口后终端依然在后台继续运行。
 

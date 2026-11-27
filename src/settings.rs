@@ -369,7 +369,7 @@ fn resolve(p: &Palette, overrides: &BTreeMap<String, String>) -> Theme {
 pub struct Person {
     /// How big the whole app is drawn (1 = as designed). The zoom keys change it.
     pub zoom: f32,
-    /// The interface language: "en" (default) or "zh-CN" (i18n.rs).
+    /// The interface language: "en" (default), "zh-CN" or "ko" (i18n.rs).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<String>,
     pub sounds: Sounds,

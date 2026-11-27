@@ -19,6 +19,7 @@ const SECTIONS = [
 const LANGUAGES = [
   ["en", "English"],
   ["zh-CN", "简体中文"],
+  ["ko", "한국어"],
 ];
 
 const LOOKS = { main: "Herdr", terminals: "Terminals", win98: "Herdr 98" };

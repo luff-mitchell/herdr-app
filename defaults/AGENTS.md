@@ -788,7 +788,7 @@ What's about the user, never a look:
   precedence as fonts.
 - `appearance`: `"light"` or `"dark"` always; absent, the system's. A layout
   with a light and a dark theme shows the matching one.
-- `language`: the interface language, `"en"` (default) or `"zh-CN"`
+- `language`: the interface language, `"en"` (default), `"zh-CN"` or `"ko"`
   (Settings → Look). Text Herdr ships is shown in it; text without a
   translation stays in English.
 - Updates: an installed app downloads them by itself and offers Restart and
