@@ -369,6 +369,9 @@ fn resolve(p: &Palette, overrides: &BTreeMap<String, String>) -> Theme {
 pub struct Person {
     /// How big the whole app is drawn (1 = as designed). The zoom keys change it.
     pub zoom: f32,
+    /// The interface language: "en" (default), "zh-CN" or "ko" (i18n.rs).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
     pub sounds: Sounds,
     /// The herdr-core to use, when it isn't where Herdr looks (core_bin.rs).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -461,6 +464,7 @@ impl Default for Person {
     fn default() -> Self {
         Person {
             zoom: 1.0,
+            language: None,
             sounds: Sounds::default(),
             core: None,
             font: None,
@@ -507,6 +511,8 @@ pub struct Settings {
     pub ui_font_size: f32,
     /// How big the whole app is drawn (1 = as designed). The zoom keys change it.
     pub zoom: f32,
+    /// The interface language code (see i18n.rs).
+    pub language: String,
     /// The theme showing: a preset or a file in themes/.
     pub theme: String,
     /// The layout's theme for each appearance (the same one twice when it names one).
@@ -562,6 +568,7 @@ impl Default for Settings {
             ui_font_family: "Geist".into(),
             ui_font_size: 13.0,
             zoom: 1.0,
+            language: "en".into(),
             theme: DEFAULT_DARK.into(),
             theme_light: DEFAULT_LIGHT.into(),
             theme_dark: DEFAULT_DARK.into(),
@@ -606,6 +613,7 @@ impl Settings {
             ui_font_family: look.ui_font.clone().or(person.ui_font.clone()).unwrap_or(d.ui_font_family),
             ui_font_size: d.ui_font_size,
             zoom: person.zoom,
+            language: crate::i18n::normalize(person.language.as_deref().unwrap_or("en")).to_owned(),
             theme: if dark { theme_dark.clone() } else { theme_light.clone() },
             theme_light,
             theme_dark,
@@ -770,6 +778,7 @@ pub fn set(s: Settings) -> bool {
         OptionAsAlt::Left => Some(gpui_macos::OptionAsAlt::Left),
         OptionAsAlt::Right => Some(gpui_macos::OptionAsAlt::Right),
     });
+    crate::i18n::set_language(&s.language);
     CURRENT.with(|c| {
         // Read the theme even when the settings are the same: its file may
         // have new colors under the same name.
@@ -1107,7 +1116,7 @@ mod tests {
     /// settings.json key.
     #[test]
     fn the_guide_explains_every_setting() {
-        let all = Person { core: Some(String::new()), font: Some(String::new()), font_size: Some(1.0), font_weight: Some(400), font_weight_bold: Some(700), ui_font: Some(String::new()), telemetry: false, clipboard_write: false, copy_on_select: false, appearance: Appearance::Light, theme: Some(crate::layout::ThemeChoice::One(String::new())), colors: [("text".into(), String::new())].into(), ..Person::default() };
+        let all = Person { core: Some(String::new()), font: Some(String::new()), font_size: Some(1.0), font_weight: Some(400), font_weight_bold: Some(700), ui_font: Some(String::new()), telemetry: false, clipboard_write: false, copy_on_select: false, appearance: Appearance::Light, language: Some(String::new()), theme: Some(crate::layout::ThemeChoice::One(String::new())), colors: [("text".into(), String::new())].into(), ..Person::default() };
         let keys: Vec<String> = serde_json::to_value(&all).unwrap().as_object().unwrap().keys().cloned().collect();
         let guide = include_str!("../defaults/AGENTS.md");
         let section = guide.split("## The person").nth(1).and_then(|s| s.split("\n## ").next()).unwrap_or_default();
